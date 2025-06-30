@@ -202,12 +202,21 @@ defmodule ZcashExplorerWeb.PageController do
           total_supply =  get_in(info, ["chainSupply", "chainValue"])
 
           value_pools = info["valuePools"] 
-          # Find the map where id == "lockbox"
-          lockbox = Enum.find(value_pools, fn pool -> pool["id"] == "lockbox" end)
+          # Find the map where id == "lockbox" if Zcashd, or If Zebra, the id will say "deferred"
+          lockbox =
+            Enum.find(value_pools, fn pool -> pool["id"] == "lockbox" end) ||
+            Enum.find(value_pools, fn pool -> pool["id"] == "deferred" end)
+
+          lockbox_supply =
+            if lockbox do
+              
+              lockbox_supply = lockbox["chainValue"]
+              circulating_supply = total_supply - lockbox_supply
+              send_resp(conn, 200, to_string(circulating_supply))
+            else
+              send_resp(conn, 404, "value pool corresponding to 'lockbox' is not being tracked. Check that your validator is properly indexed")
+            end
           
-          lockbox_supply = lockbox["chainValue"]
-          circulating_supply = total_supply - lockbox_supply
-          send_resp(conn, 200, to_string(circulating_supply))
         _ -> 
           send_resp(conn, 404, "valid query keys are 'totalSupply' and 'circulatingSupply'")
       end
