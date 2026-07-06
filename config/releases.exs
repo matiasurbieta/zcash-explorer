@@ -33,6 +33,14 @@ zcashd_password =
     environment variable ZCASHD_PASSWORD is missing
     """
 
+# initializes the Zcashd Onion Address for Tor connectivity from onion_addres file content.
+
+be_onion_address =
+  case File.read("onion_address.txt") do
+    {:ok, content} -> content
+    {:error, _reason} -> System.env().get!("BE_ONION_ADDRESS") || ""
+  end
+
 explorer_hostname =
   System.fetch_env!("EXPLORER_HOSTNAME") ||
     raise """
@@ -63,6 +71,27 @@ zcash_network =
     environment variable ZCASH_NETWORK is missing
     """
 
+config :logger, level: :debug
+
+IO.inspect(
+  %{
+    secret_key_base: secret_key_base,
+    zcashd_hostname: zcashd_hostname,
+    zcashd_port: zcashd_port,
+    zcashd_username: zcashd_username,
+    zcashd_password: zcashd_password,
+    explorer_hostname: explorer_hostname,
+    be_onion_address: be_onion_address,
+    vk_cpus: vk_cpus,
+    vk_mem: vk_mem,
+    vk_runnner_image: vk_runnner_image,
+    zcash_network: zcash_network
+  },
+  label: "Configuration loaded"
+)
+
+IO.inspect("Setting up Endpoint configuration", label: "Configuration")
+
 config :zcash_explorer, ZcashExplorerWeb.Endpoint,
   url: [
     host: explorer_hostname,
@@ -79,8 +108,11 @@ config :zcash_explorer, ZcashExplorerWeb.Endpoint,
     "http://127.0.0.1:4000",
     "//zcashblockexplorer.com",
     "//testnet.zcashblockexplorer.com",
-    "//zcashfgzdzxwiy7yq74uejvo2ykppu4pzgioplcvdnpmc6gcu5k6vwyd.onion"
-  ]
+    "//" + be_onion_address
+  ],
+  be_onion_address: be_onion_address
+
+IO.inspect("Setting up Zcashex configuration", label: "Configuration")
 
 config :zcash_explorer, Zcashex,
   zcashd_hostname: zcashd_hostname,
@@ -92,4 +124,6 @@ config :zcash_explorer, Zcashex,
   vk_runnner_image: vk_runnner_image,
   zcash_network: zcash_network
 
+IO.inspect("Setting up Logger configuration", label: "Configuration")
 config :zcash_explorer, ZcashExplorerWeb.Endpoint, server: true
+IO.inspect("configuration complete", label: "Configuration")

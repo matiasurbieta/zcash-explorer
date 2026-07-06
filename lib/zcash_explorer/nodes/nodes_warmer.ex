@@ -1,5 +1,6 @@
 defmodule ZcashExplorer.Nodes.NodeWarmer do
   use Cachex.Warmer
+  require Logger
 
   @doc """
   Returns the interval for this warmer.
@@ -15,8 +16,10 @@ defmodule ZcashExplorer.Nodes.NodeWarmer do
   end
 
   # ignores the warmer result in case of error
-  defp handle_result({:error, _reason}),
-    do: :ignore
+  defp handle_result({:error, reason}) do
+    Logger.error("Error while warming the nodes cache: #{inspect(reason)}")
+    :ignore
+  end
 
   defp handle_result({:ok, nodes}) do
     {:ok, [{"zcash_nodes", nodes}]}

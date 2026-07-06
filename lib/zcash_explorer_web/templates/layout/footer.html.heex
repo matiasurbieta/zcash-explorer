@@ -5,23 +5,37 @@
         <a href="/privacy.html" class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
           Privacy Policy
         </a>
-      </div>
 
+      </div>
 <%= if assigns[:zcash_network] != "testnet" do %>
   <div class="px-5 py-2">
     <a href="https://testnet.zcashblockexplorer.com" class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
     Testnet
     </a>
   </div>
-  <div class="px-5 py-2">
-    <a href="http://zcashfgzdzxwiy7yq74uejvo2ykppu4pzgioplcvdnpmc6gcu5k6vwyd.onion/" class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
-      Onion V3
-    </a>
-  </div>
+  
 <% else %>
   <div class="px-5 py-2">
     <a href="https://zcashblockexplorer.com" class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
       Mainnet
+    </a>
+  </div>
+<% end %>
+
+<%= if assigns[:be_onion_address] && String.trim(assigns[:be_onion_address]) != "" do %>
+  <div class="px-5 py-2">
+    <a href={"http://#{String.trim(assigns[:be_onion_address])}/"} class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
+      Onion V3
+    </a>
+  </div>
+<% end %>
+
+
+
+<%= if assigns[:be_onion_address] && String.trim(assigns[:be_onion_address]) != "" do %>
+  <div class="px-5 py-2">
+    <a href={"http://#{String.trim(assigns[:be_onion_address])}/"} class="text-base text-gray-500 hover:text-gray-900 dark:hover:text-slate-100">
+      Onion V3
     </a>
   </div>
 <% end %>
