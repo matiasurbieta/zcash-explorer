@@ -305,11 +305,11 @@ defmodule ZcashExplorerWeb.TransactionView do
   end
 
   def tx_in_total(tx) when is_map(tx) do
-    tx.vin |> Enum.reduce(0, fn x, acc -> (x.value||0) + acc end)
+    tx.vin |> Enum.reduce(0, fn x, acc -> (x.value || 0) + acc end)
   end
 
   def tx_out_total(tx) when is_map(tx) do
-    tx.vout |> Enum.reduce(0, fn x, acc -> (x.value||0) + acc end)
+    tx.vout |> Enum.reduce(0, fn x, acc -> (x.value || 0) + acc end)
   end
 
   def transparent_tx_fee(public_tx) do
@@ -487,6 +487,40 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vin) > 0 and
              length(tx.vout) > 0 do
     fee = tx_in_total(tx) - abs(tx.valueBalance) - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
+  # Orchard-only mixed tx (NU5, no Sapling shielded spends/outputs, no joinsplits)
+  # example tx (mainnet): ca1106031eab5892b07efb1c2e71126eeb73a14f23f4e62c06083d01fac6d6b0
+  def mixed_tx_fees(tx)
+      when is_map(tx) and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.version == 5 and
+             tx.orchard.actions != nil and
+             length(tx.orchard.actions) > 0 and
+             tx.orchard.valueBalance >= 0 and
+             length(tx.vin) > 0 and
+             length(tx.vout) > 0 do
+    fee = tx_in_total(tx) + tx.orchard.valueBalance - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
+  def mixed_tx_fees(tx)
+      when is_map(tx) and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.version == 5 and
+             tx.orchard.actions != nil and
+             length(tx.orchard.actions) > 0 and
+             tx.orchard.valueBalance < 0 and
+             length(tx.vin) > 0 and
+             length(tx.vout) > 0 do
+    fee = tx_in_total(tx) - abs(tx.orchard.valueBalance) - tx_out_total(tx)
     fee |> format_zec()
   end
 end

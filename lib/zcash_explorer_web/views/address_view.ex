@@ -4,20 +4,17 @@ defmodule ZcashExplorerWeb.AddressView do
   def title(:get_address, _assigns), do: "Edit Profile"
 
   def zatoshi_to_zec(zatoshi) do
-
     if is_nil(zatoshi) do
       0.0
     else
-        zatoshi_per_zec = :math.pow(10, -8)
+      zatoshi_per_zec = :math.pow(10, -8)
 
-
-        zatoshi_per_zec * zatoshi
+      zatoshi_per_zec * zatoshi
     end
   end
 
-
   def spend_zatoshi(received, balance) do
-    (received - balance) |> zatoshi_to_zec
+    (received - balance) |> zatoshi_to_zec()
   end
 
   def disable_next(end_block, latest_block) do

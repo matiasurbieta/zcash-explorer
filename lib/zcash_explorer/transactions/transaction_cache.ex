@@ -12,22 +12,24 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
   Executes this cache warmer.
   """
   def execute(_state) do
-
-
     case Zcashex.getblockcount() do
       {:ok, n} ->
-        #from
+        # from
         blocks =
-          Enum.to_list(n - 20..n)
+          Enum.to_list((n - 20)..n)
           |> Enum.map(fn x ->
             {:ok, block} = Zcashex.getblock(x, 2)
             block
           end)
-        blocks=blocks
-        |> Enum.sort(&(&1["height"] >= &2["height"]))
-        |> Enum.map(fn x ->
-          x["tx"]
-        end) |> List.flatten()
+
+        blocks =
+          blocks
+          |> Enum.sort(&(&1["height"] >= &2["height"]))
+          |> Enum.map(fn x ->
+            x["tx"]
+          end)
+          |> List.flatten()
+
         blocks
         |> Enum.take(20)
         |> Enum.map(fn y ->
@@ -37,7 +39,7 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
         end)
         |> Enum.map(fn z ->
           %{
-           "txid" => Map.get(z, :txid),
+            "txid" => Map.get(z, :txid),
             "block_height" => Map.get(z, :height),
             "time" => ZcashExplorerWeb.BlockView.mined_time(Map.get(z, :time)),
             "tx_out_total" => ZcashExplorerWeb.BlockView.tx_out_total(z),
@@ -45,10 +47,10 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
             "type" => ZcashExplorerWeb.BlockView.tx_type(z)
           }
         end)
-        |> handle_result
+        |> handle_result()
 
       {:error, reason} ->
-        {:error, reason} |> handle_result
+        {:error, reason} |> handle_result()
     end
   end
 

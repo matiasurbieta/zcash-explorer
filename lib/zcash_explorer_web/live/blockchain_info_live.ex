@@ -110,7 +110,7 @@ defmodule ZcashExplorerWeb.BlockChainInfoLive do
   end
 
   defp orchard_value(value_pools) do
-    value_pools |> get_value_pools |> Map.get("orchard")
+    value_pools |> get_value_pools() |> Map.get("orchard")
   end
 
   defp get_value_pools(value_pools) do

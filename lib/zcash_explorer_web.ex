@@ -29,7 +29,6 @@ defmodule ZcashExplorerWeb do
 
   def view do
     quote do
-      
       use Phoenix.View,
         root: "lib/zcash_explorer_web/templates",
         namespace: ZcashExplorerWeb

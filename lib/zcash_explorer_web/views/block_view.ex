@@ -21,7 +21,7 @@ defmodule ZcashExplorerWeb.BlockView do
   end
 
   def transaction_count(txs) do
-    txs |> length
+    txs |> length()
   end
 
   def vin_count(txs) do
@@ -42,7 +42,7 @@ defmodule ZcashExplorerWeb.BlockView do
     case Map.fetch(first_tx, :coinbase) do
       {:ok, nil} -> false
       {:ok, _value} -> true
-      {:error, _reason} -> false
+      :error -> false
     end
   end
 
@@ -81,12 +81,12 @@ defmodule ZcashExplorerWeb.BlockView do
   end
 
   def input_total(txs) do
-    [hd | tail] = txs
+    [_hd | tail] = txs
 
     tail
     |> Enum.map(fn x -> Map.get(x, :vin) end)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end
@@ -95,7 +95,7 @@ defmodule ZcashExplorerWeb.BlockView do
     txs
     |> Enum.map(fn x -> Map.get(x, :vout) end)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end
@@ -104,7 +104,7 @@ defmodule ZcashExplorerWeb.BlockView do
     tx
     |> Map.get(:vout)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end

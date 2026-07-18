@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :zcash_explorer, ZcashExplorer.Repo,
@@ -43,19 +43,19 @@ be_onion_address =
   end
 
 config :zcash_explorer, Zcashex,
-  #zcashd_hostname: "localhost",
+  # zcashd_hostname: "localhost",
 
-  zcashd_hostname: "https://lwd.zcashexplorer.app",
-  #zcashd_port: "8237",
-  #zcashd_port: "18232",
-  zcashd_port: "9067",
-
+  zcashd_hostname: "lwd.zcashexplorer.app",
+  # zcashd_port: "8237",
+  # zcashd_port: "18232",
+  # zcashd_port: "9067",
+  zcashd_port: "8232",
   zcashd_username: "",
   zcashd_password: "",
   vk_cpus: "0.2",
   vk_mem: "2048M",
   vk_runnner_image: "nighthawkapps/vkrunner",
-  zcash_network: "testnet"
+  zcash_network: "mainnet"
 
 # ## SSL Support
 #

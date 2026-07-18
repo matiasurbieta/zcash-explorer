@@ -13,12 +13,4 @@ defmodule ZcashExplorer.Metrics.MempoolInfoWarmer do
   def execute(_state) do
     :ignore
   end
-
-  # ignores the warmer result in case of error
-  defp handle_result({:error, _reason}),
-    do: :ignore
-
-  defp handle_result({:ok, mempool_info}) do
-    {:ok, [{"mempool_info", mempool_info}]}
-  end
 end
