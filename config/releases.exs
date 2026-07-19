@@ -38,7 +38,7 @@ zcashd_password =
 be_onion_address =
   case File.read("onion_address.txt") do
     {:ok, content} -> content
-    {:error, _reason} -> System.env().get!("BE_ONION_ADDRESS") || ""
+    {:error, _reason} -> System.get_env("BE_ONION_ADDRESS") || ""
   end
 
 explorer_hostname =
@@ -108,7 +108,7 @@ config :zcash_explorer, ZcashExplorerWeb.Endpoint,
     "http://127.0.0.1:4000",
     "//zcashblockexplorer.com",
     "//testnet.zcashblockexplorer.com",
-    "//" + be_onion_address
+    "//" <> be_onion_address
   ],
   be_onion_address: be_onion_address
 
