@@ -1,4 +1,4 @@
-FROM elixir:1.14.4-alpine AS build
+FROM elixir:1.18.3-otp-27-alpine AS build
 
 # install build dependencies
 RUN apk add --update --no-cache build-base --update nodejs npm git
@@ -23,7 +23,7 @@ RUN npm install --prefix=assets
 
 # should be before running npm deploy
 COPY lib lib
-copy rel rel
+COPY rel rel
 
 COPY priv priv
 COPY assets assets

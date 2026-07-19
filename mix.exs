@@ -52,9 +52,9 @@ defmodule ZcashExplorer.MixProject do
       {:cachex, "~> 3.3"},
       {:phoenix_live_view, "~> 0.17.9"},
       {:floki, ">= 0.27.0", only: :test},
-      # use zcashex from the local path for development, and from github for production
-      {:zcashex, path: "../zcashex-matias"},
-      # {:zcashex, github: "zcash/zcashex"},
+      {:zcashex,
+       github: "matiasurbieta/zcashex",
+       ref: "80de3f86d7fcc45ce5bc7ec4c474a79ac7f590c0"},
       {:timex, "~> 3.0"},
       {:sizeable, "~> 1.0"},
       {:eqrcode, "~> 0.1.8"},
