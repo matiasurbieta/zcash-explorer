@@ -1,3 +1,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* z.cash typography system
+     h1            → DM Serif Display 400  (display serif, matches z.cash hero style)
+     h2            → Inter 800 uppercase   (section titles, matches z.cash h2 spec)
+     h3            → Inter 700             (sub-sections)
+     h4–h6, body   → Inter 300–500         (body / small labels)
+     Source: https://z.cash elementor-kit-5 CSS variables                         */
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    line-height: 1.1em;
+    color: inherit;
+  }
+
+  h2 {
+    font-family: 'Inter var', 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.25em;
+    letter-spacing: 0.02em;
+  }
+
+  h3 {
+    font-family: 'Inter var', 'Inter', sans-serif;
+    font-weight: 700;
+    line-height: 1.35em;
+  }
+
+  h4, h5, h6 {
+    font-family: 'Inter var', 'Inter', sans-serif;
+    font-weight: 700;
+    line-height: 1.2em;
+  }
+
+  a {
+    @apply transition-colors;
+  }
+
+  /* Zcash gold for links (matches z.cash: a { color: var(--e-global-color-accent) }) */
+  .text-indigo-600 {
+    @apply text-zcash-gold-dim;
+  }
+  .hover\:text-indigo-500:hover {
+    @apply text-zcash-gold;
+  }
+
+  /* Stat cards: subtle gold left-border accent */
+  .px-4.py-5.bg-white.shadow {
+    @apply border-l-2;
+    border-color: rgba(243, 183, 36, 0.3);
+  }
+}

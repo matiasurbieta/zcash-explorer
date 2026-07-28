@@ -1,5 +1,6 @@
 defmodule ZcashExplorer.Mempool.MempoolWarmer do
   use Cachex.Warmer
+  require Logger
 
   @doc """
   Returns the interval for this warmer.
@@ -15,8 +16,10 @@ defmodule ZcashExplorer.Mempool.MempoolWarmer do
   end
 
   # ignores the warmer result in case of error
-  defp handle_result({:error, _reason}),
-    do: :ignore
+  defp handle_result({:error, reason}) do
+    Logger.error("Error while warming the mempool cache: #{inspect(reason)}")
+    :ignore
+  end
 
   defp handle_result({:ok, raw_mempool}) do
     mempool_info = Enum.map(raw_mempool, fn {k, v} -> %{"txid" => k, "info" => v} end)

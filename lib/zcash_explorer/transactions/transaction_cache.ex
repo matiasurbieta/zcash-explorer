@@ -12,22 +12,28 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
   Executes this cache warmer.
   """
   def execute(_state) do
-    high = DateTime.utc_now() |> DateTime.to_unix()
-    low = DateTime.utc_now() |> DateTime.add(-900, :second) |> DateTime.to_unix()
-    # get the blocks mined in that duration
+    case Zcashex.getblockcount() do
+      {:ok, n} ->
+        # from
+        blocks =
+          Enum.to_list((n - 20)..n)
+          |> Enum.map(fn x ->
+            {:ok, block} = Zcashex.getblock(x, 2)
+            block
+          end)
 
-    case Zcashex.getblockhashes(high, low, true, true) do
-      {:ok, blocks} ->
+        blocks =
+          blocks
+          |> Enum.sort(&(&1["height"] >= &2["height"]))
+          |> Enum.map(fn x ->
+            x["tx"]
+          end)
+          |> List.flatten()
+
         blocks
-        |> Enum.sort(&(&1["logicalts"] >= &2["logicalts"]))
-        |> Enum.map(fn x ->
-          {:ok, block} = Zcashex.getblock(Map.get(x, "blockhash"), 1)
-          tx = block["tx"]
-        end)
-        |> List.flatten()
-        |> Enum.take(10)
+        |> Enum.take(20)
         |> Enum.map(fn y ->
-          {:ok, tx} = Zcashex.getrawtransaction(y, 1)
+          {:ok, tx} = Zcashex.getrawtransaction(y["txid"], 1)
           tx_data = Zcashex.Transaction.from_map(tx)
           tx_data
         end)
@@ -41,10 +47,10 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
             "type" => ZcashExplorerWeb.BlockView.tx_type(z)
           }
         end)
-        |> handle_result
+        |> handle_result()
 
       {:error, reason} ->
-        {:error, reason} |> handle_result
+        {:error, reason} |> handle_result()
     end
   end
 

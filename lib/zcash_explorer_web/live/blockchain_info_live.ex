@@ -64,10 +64,10 @@ defmodule ZcashExplorerWeb.BlockChainInfoLive do
 
     <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-800">
       <dt class="text-sm font-medium text-gray-500 truncate">
-        zcashd version
+        Server version
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900 dark:text-white">
-      <%= @blockchain_info["build"] %>
+      <%= @blockchain_info["subversion"] %> <%= @blockchain_info["version"] %> <%= @blockchain_info["build"] %>
       </dd>
     </div>
     </dl>
@@ -110,7 +110,7 @@ defmodule ZcashExplorerWeb.BlockChainInfoLive do
   end
 
   defp orchard_value(value_pools) do
-    value_pools |> get_value_pools |> Map.get("orchard")
+    value_pools |> get_value_pools() |> Map.get("orchard")
   end
 
   defp get_value_pools(value_pools) do

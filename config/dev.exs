@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :zcash_explorer, ZcashExplorer.Repo,
@@ -27,7 +27,7 @@ config :zcash_explorer, ZcashExplorerWeb.Endpoint,
       "development",
       "--watch-stdin",
       cd: Path.expand("../assets", __DIR__),
-      env: []
+      env: [{"NODE_OPTIONS", "--openssl-legacy-provider"}]
     ],
     npm: [
       "run",
@@ -36,11 +36,22 @@ config :zcash_explorer, ZcashExplorerWeb.Endpoint,
     ]
   ]
 
+be_onion_address =
+  case File.read("onion_address.txt") do
+    {:ok, content} -> content
+    {:error, _reason} -> System.get_env("ZCASHD_ONION_ADDRESS") || ""
+  end
+
 config :zcash_explorer, Zcashex,
-  zcashd_hostname: "localhost",
+  # zcashd_hostname: "localhost",
+
+  zcashd_hostname: "lwd.zcashexplorer.app",
+  # zcashd_port: "8237",
+  # zcashd_port: "18232",
+  # zcashd_port: "9067",
   zcashd_port: "8232",
-  zcashd_username: "nighthawkapps",
-  zcashd_password: "ffwf",
+  zcashd_username: "",
+  zcashd_password: "",
   vk_cpus: "0.2",
   vk_mem: "2048M",
   vk_runnner_image: "nighthawkapps/vkrunner",

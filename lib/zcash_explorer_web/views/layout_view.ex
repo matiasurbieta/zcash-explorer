@@ -4,10 +4,10 @@ defmodule ZcashExplorerWeb.LayoutView do
   def bg_class(assigns) do
     case assigns[:zcash_network] do
       "testnet" ->
-        "bg-purple-200 dark:bg-gray-500"
+        "bg-violet-100 dark:bg-violet-950"
 
       _ ->
-        "bg-gray-50 dark:bg-gray-900"
+        "bg-zcash-light dark:bg-zcash-dark"
     end
   end
 end

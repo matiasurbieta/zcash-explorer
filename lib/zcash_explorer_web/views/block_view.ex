@@ -21,7 +21,7 @@ defmodule ZcashExplorerWeb.BlockView do
   end
 
   def transaction_count(txs) do
-    txs |> length
+    txs |> length()
   end
 
   def vin_count(txs) do
@@ -42,7 +42,7 @@ defmodule ZcashExplorerWeb.BlockView do
     case Map.fetch(first_tx, :coinbase) do
       {:ok, nil} -> false
       {:ok, _value} -> true
-      {:error, _reason} -> false
+      :error -> false
     end
   end
 
@@ -81,12 +81,12 @@ defmodule ZcashExplorerWeb.BlockView do
   end
 
   def input_total(txs) do
-    [hd | tail] = txs
+    [_hd | tail] = txs
 
     tail
     |> Enum.map(fn x -> Map.get(x, :vin) end)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end
@@ -95,7 +95,7 @@ defmodule ZcashExplorerWeb.BlockView do
     txs
     |> Enum.map(fn x -> Map.get(x, :vout) end)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end
@@ -104,7 +104,7 @@ defmodule ZcashExplorerWeb.BlockView do
     tx
     |> Map.get(:vout)
     |> List.flatten()
-    |> Enum.reduce(0, fn x, acc -> Map.get(x, :value) + acc end)
+    |> Enum.reduce(0, fn x, acc -> (Map.get(x, :value) || 0) + acc end)
     |> Kernel.+(0.0)
     |> :erlang.float_to_binary([:compact, {:decimals, 10}])
   end
@@ -132,6 +132,10 @@ defmodule ZcashExplorerWeb.BlockView do
     TransactionView.orchard_actions(tx) > 0
   end
 
+  def contains_ironwood(tx) do
+    TransactionView.ironwood_actions(tx) > 0
+  end
+
   def get_joinsplit_count(tx) do
     length(tx.vjoinsplit)
   end
@@ -145,7 +149,8 @@ defmodule ZcashExplorerWeb.BlockView do
 
   def is_shielded_tx?(tx) do
     !transparent_in_and_out(tx) and
-      (contains_sprout(tx) or contains_sapling(tx) or contains_orchard(tx))
+      (contains_sprout(tx) or contains_sapling(tx) or contains_orchard(tx) or
+         contains_ironwood(tx))
   end
 
   def is_transparent_tx?(tx) do
@@ -159,17 +164,26 @@ defmodule ZcashExplorerWeb.BlockView do
 
   def is_mixed_tx?(tx) do
     t_in_or_out = length(tx.vin) > 0 or length(tx.vout) > 0
-    t_in_or_out and (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx))
+
+    t_in_or_out and
+      (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx) ||
+         contains_ironwood(tx))
   end
 
   def is_shielding(tx) do
     tin_and_zout = length(tx.vin) > 0 and length(tx.vout) == 0
-    tin_and_zout and (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx))
+
+    tin_and_zout and
+      (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx) ||
+         contains_ironwood(tx))
   end
 
   def is_deshielding(tx) do
     zin_and_tout = length(tx.vin) == 0 and length(tx.vout) > 0
-    zin_and_tout and (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx))
+
+    zin_and_tout and
+      (contains_sprout(tx) || contains_sapling(tx) || contains_orchard(tx) ||
+         contains_ironwood(tx))
   end
 
   def tx_type(tx) do
