@@ -33,6 +33,13 @@ defmodule ZcashExplorerWeb.TransactionView do
     end
   end
 
+  def ironwood_actions(tx) do
+    case tx do
+      %{ironwood: %{actions: actions}} when is_list(actions) -> length(actions)
+      _ -> 0
+    end
+  end
+
   def get_shielded_pool_label(tx)
       when tx.vjoinsplit != nil and
              length(tx.vjoinsplit) == 0 and
@@ -164,6 +171,36 @@ defmodule ZcashExplorerWeb.TransactionView do
     "Transferred from shielded pool"
   end
 
+  def get_shielded_pool_label(tx)
+      when tx.vjoinsplit != nil and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vin) == 0 and
+             length(tx.vout) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.ironwood != nil and
+             tx.ironwood.actions != nil and
+             length(tx.ironwood.actions) > 0 and
+             tx.ironwood.valueBalance > 0 do
+    "Transferred from shielded pool (Ironwood)"
+  end
+
+  def get_shielded_pool_label(tx)
+      when tx.vjoinsplit != nil and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vin) == 0 and
+             length(tx.vout) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.ironwood != nil and
+             tx.ironwood.actions != nil and
+             length(tx.ironwood.actions) > 0 and
+             tx.ironwood.valueBalance < 0 do
+    "Transferred to shielded pool (Ironwood)"
+  end
+
   # 247aaa9a1307ab094cc077123867b019a20aa35cc7e394d7607127e146d54922
   def get_shielded_pool_value(tx)
       when tx.vjoinsplit != nil and
@@ -177,6 +214,20 @@ defmodule ZcashExplorerWeb.TransactionView do
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 do
     tx.orchard.valueBalance
+  end
+
+  def get_shielded_pool_value(tx)
+      when tx.vjoinsplit != nil and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vin) == 0 and
+             length(tx.vout) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.ironwood != nil and
+             tx.ironwood.actions != nil and
+             length(tx.ironwood.actions) > 0 do
+    tx.ironwood.valueBalance
   end
 
   #
@@ -349,6 +400,13 @@ defmodule ZcashExplorerWeb.TransactionView do
     fee |> format_zec()
   end
 
+  def shielding_tx_fee(tx)
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and
+             tx.ironwood != nil and tx.ironwood.valueBalance != nil do
+    fee = tx_in_total(tx) - abs(tx.ironwood.valueBalance)
+    fee |> format_zec()
+  end
+
   def deshielding_tx_fees(tx) when is_map(tx) and length(tx.vjoinsplit) > 0 do
     fee = vjoinsplit_vpub_new_total(tx) - tx_out_total(tx)
     fee |> format_zec()
@@ -373,6 +431,13 @@ defmodule ZcashExplorerWeb.TransactionView do
   def deshielding_tx_fees(tx)
       when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version == 5 do
     fee = tx.orchard.valueBalance - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
+  def deshielding_tx_fees(tx)
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and
+             tx.ironwood != nil and tx.ironwood.valueBalance != nil do
+    fee = tx.ironwood.valueBalance - tx_out_total(tx)
     fee |> format_zec()
   end
 
@@ -521,6 +586,38 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vin) > 0 and
              length(tx.vout) > 0 do
     fee = tx_in_total(tx) - abs(tx.orchard.valueBalance) - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
+  def mixed_tx_fees(tx)
+      when is_map(tx) and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.ironwood != nil and
+             tx.ironwood.actions != nil and
+             length(tx.ironwood.actions) > 0 and
+             tx.ironwood.valueBalance >= 0 and
+             length(tx.vin) > 0 and
+             length(tx.vout) > 0 do
+    fee = tx_in_total(tx) + tx.ironwood.valueBalance - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
+  def mixed_tx_fees(tx)
+      when is_map(tx) and
+             length(tx.vjoinsplit) == 0 and
+             length(tx.vShieldedOutput) == 0 and
+             length(tx.vShieldedSpend) == 0 and
+             tx.valueBalance == 0.0 and
+             tx.ironwood != nil and
+             tx.ironwood.actions != nil and
+             length(tx.ironwood.actions) > 0 and
+             tx.ironwood.valueBalance < 0 and
+             length(tx.vin) > 0 and
+             length(tx.vout) > 0 do
+    fee = tx_in_total(tx) - abs(tx.ironwood.valueBalance) - tx_out_total(tx)
     fee |> format_zec()
   end
 end
