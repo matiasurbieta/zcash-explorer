@@ -48,7 +48,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) == 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance == 0.0 and
-             tx.version == 5 and
+             tx.version >= 5 and
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 and
              tx.orchard.valueBalance > 0 do
@@ -63,7 +63,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) == 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance == 0.0 and
-             tx.version == 5 and
+             tx.version >= 5 and
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 and
              tx.orchard.valueBalance < 0 do
@@ -78,7 +78,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) > 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance < 0.0 and
-             tx.version == 5 do
+             tx.version >= 5 do
     "Transferred from/to shielded pool"
   end
 
@@ -210,7 +210,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) == 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance == 0.0 and
-             tx.version == 5 and
+             tx.version >= 5 and
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 do
     tx.orchard.valueBalance
@@ -239,7 +239,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) > 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance < 0.0 and
-             tx.version == 5 do
+             tx.version >= 5 do
     0
   end
 
@@ -388,14 +388,14 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   # example 1b0f70849ff66402553d696e154c3db1f54cf1512d19a2683f4576f5f990a69d
   def shielding_tx_fee(tx)
-      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version == 5 and
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 5 and
              tx.orchard.valueBalance == 0 do
     fee = tx_in_total(tx) - abs(tx.valueBalance)
     fee |> format_zec()
   end
 
   # c7eb2ac6252fd266a74f5266ed9c1e585571ae941901480053f7886330829dea
-  def shielding_tx_fee(tx) when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version == 5 do
+  def shielding_tx_fee(tx) when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 5 do
     fee = tx_in_total(tx) - abs(tx.orchard.valueBalance)
     fee |> format_zec()
   end
@@ -404,6 +404,12 @@ defmodule ZcashExplorerWeb.TransactionView do
       when is_map(tx) and length(tx.vjoinsplit) == 0 and
              tx.ironwood != nil and tx.ironwood.valueBalance != nil do
     fee = tx_in_total(tx) - abs(tx.ironwood.valueBalance)
+    fee |> format_zec()
+  end
+
+  def shielding_tx_fee(tx)
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 6 do
+    fee = tx_in_total(tx) - abs(tx.valueBalance)
     fee |> format_zec()
   end
 
@@ -421,7 +427,7 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   #
   def deshielding_tx_fees(tx)
-      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version == 5 and
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 5 and
              tx.orchard.valueBalance == 0 do
     fee = tx.valueBalance - tx_out_total(tx)
     fee |> format_zec()
@@ -429,7 +435,7 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   # 2e6b1180f806af3b4e0b51604a4b846f881db3801a410486269bfda5cb39c716
   def deshielding_tx_fees(tx)
-      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version == 5 do
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 5 do
     fee = tx.orchard.valueBalance - tx_out_total(tx)
     fee |> format_zec()
   end
@@ -441,10 +447,16 @@ defmodule ZcashExplorerWeb.TransactionView do
     fee |> format_zec()
   end
 
+  def deshielding_tx_fees(tx)
+      when is_map(tx) and length(tx.vjoinsplit) == 0 and tx.version >= 6 do
+    fee = tx.valueBalance - tx_out_total(tx)
+    fee |> format_zec()
+  end
+
   # e145617c5d7d1646674da1d36540faff8e548738c0f500857e3230b35e85ca5f
   def unknown_tx_fees(tx)
       when tx.vjoinsplit != nil and
-             tx.version == 5 and
+             tx.version >= 5 and
              length(tx.vjoinsplit) == 0 and
              length(tx.vin) > 0 and
              length(tx.vout) == 0 and
@@ -456,7 +468,7 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   def unknown_tx_fees(tx)
       when tx.vjoinsplit != nil and
-             tx.version == 5 and
+             tx.version >= 5 and
              length(tx.vjoinsplit) == 0 and
              length(tx.vin) > 0 and
              length(tx.vout) > 0 and
@@ -468,7 +480,7 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   def unknown_tx_fees(tx)
       when tx.vjoinsplit != nil and
-             tx.version == 5 and
+             tx.version >= 5 and
              length(tx.vjoinsplit) == 0 and
              length(tx.vin) > 0 and
              length(tx.vout) > 0 and
@@ -480,7 +492,7 @@ defmodule ZcashExplorerWeb.TransactionView do
 
   def unknown_tx_fees(tx)
       when tx.vjoinsplit != nil and
-             tx.version == 5 and
+             tx.version >= 5 and
              length(tx.vjoinsplit) == 0 and
              length(tx.vin) == 0 and
              length(tx.vout) > 0 and
@@ -563,7 +575,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) == 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance == 0.0 and
-             tx.version == 5 and
+             tx.version >= 5 and
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 and
              tx.orchard.valueBalance >= 0 and
@@ -579,7 +591,7 @@ defmodule ZcashExplorerWeb.TransactionView do
              length(tx.vShieldedOutput) == 0 and
              length(tx.vShieldedSpend) == 0 and
              tx.valueBalance == 0.0 and
-             tx.version == 5 and
+             tx.version >= 5 and
              tx.orchard.actions != nil and
              length(tx.orchard.actions) > 0 and
              tx.orchard.valueBalance < 0 and

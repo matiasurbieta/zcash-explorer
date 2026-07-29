@@ -18,9 +18,12 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
         blocks =
           Enum.to_list((n - 20)..n)
           |> Enum.map(fn x ->
-            {:ok, block} = Zcashex.getblock(x, 2)
-            block
+            case Zcashex.getblock(x, 2) do
+              {:ok, block} -> block
+              _ -> nil
+            end
           end)
+          |> Enum.reject(&is_nil/1)
 
         blocks =
           blocks
@@ -33,10 +36,12 @@ defmodule ZcashExplorer.Transactions.TransactionWarmer do
         blocks
         |> Enum.take(20)
         |> Enum.map(fn y ->
-          {:ok, tx} = Zcashex.getrawtransaction(y["txid"], 1)
-          tx_data = Zcashex.Transaction.from_map(tx)
-          tx_data
+          case Zcashex.getrawtransaction(y["txid"], 1) do
+            {:ok, tx} -> Zcashex.Transaction.from_map(tx)
+            _ -> nil
+          end
         end)
+        |> Enum.reject(&is_nil/1)
         |> Enum.map(fn z ->
           %{
             "txid" => Map.get(z, :txid),
