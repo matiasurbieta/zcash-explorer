@@ -54,7 +54,7 @@ defmodule ZcashExplorer.MixProject do
       {:floki, ">= 0.27.0", only: :test},
       {:zcashex,
        github: "matiasurbieta/zcashex",
-       ref: "8f0edac0298614834fd43e3436bca3e1211a1d65"},
+       branch: "main"},
       {:timex, "~> 3.0"},
       {:sizeable, "~> 1.0"},
       {:eqrcode, "~> 0.1.8"},
